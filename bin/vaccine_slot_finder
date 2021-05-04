@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require 'vaccine_slot_finder'
+argument_empty_message = "Hmmm Pincode, Date OR BOTH are missing. For example: { Run from your terminal } :- vaccine_slot_finder 'pincode' 'date(dd-MM-YYYY)'"
+if ARGV.empty? || ARGV.length < 2
+  puts argument_empty_message
+  return
+end
+puts VaccineSlotFinder::VaccineFinder.new(ARGV.first, ARGV.last).by_pincode
