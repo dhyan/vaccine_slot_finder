@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["drg-dhyan"]
   spec.email         = ["dhyanbaba@gmail.com"]
 
-  spec.summary       = %q{}
-  spec.description   = %q{}
+  spec.summary       = %q{Gem to check console output of vaccine availability}
+  spec.description   = %q{Uses COWIN api to find vaccine centres based on pincode and date}
   spec.homepage      = ""
   spec.license       = "MIT"
 
