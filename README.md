@@ -21,18 +21,14 @@ Or install it yourself as:
     $ gem install vaccine_slot_finder
 
 ## Usage
+    $ vaccine_slot_finder pincode date(DD-MM-YYYY)
+    $ vaccine_slot_finder 560067 10-05-2021
 
-TODO: Write usage instructions here
+## More work?
 
-## Development
+TODO:- May be put it in cron job and attach some notification service to keep track of. People tired of checking vaccine slots can now rejoice!
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/vaccine_slot_finder.
 
 ## License
 
