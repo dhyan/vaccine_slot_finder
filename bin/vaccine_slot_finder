@@ -1,8 +1,20 @@
 #!/usr/bin/env ruby
 require 'vaccine_slot_finder'
-argument_empty_message = "Hmmm Pincode, Date OR BOTH are missing. For example: { Run from your terminal } :- vaccine_slot_finder 'pincode' 'date(dd-MM-YYYY)'"
-if ARGV.empty? || ARGV.length < 2
-  puts argument_empty_message
-  return
+
+# argument_empty_message = "Hmmm Pincode, Date OR BOTH are missing. For example: { Run from your terminal } :- vaccine_slot_finder 'pincode' 'date(dd-MM-YYYY)'"
+# if ARGV.empty? || ARGV.length < 2
+#   puts argument_empty_message
+#   return
+# end
+
+yml = YAML.load_file('lib/vaccine_slot_finder/bengaluru_pincodes.yaml')
+yml = yml['pincodes'].split(" ")
+
+# APi response returns availability for next 7 days
+time = Time.now.strftime('%d/%m/%Y')
+yml.each do |pin|
+  puts "Searching for pincode:- #{pin}"
+  puts VaccineSlotFinder::VaccineFinder.new(pin, time).by_pincode
+  sleep 4
 end
-puts VaccineSlotFinder::VaccineFinder.new(ARGV.first, ARGV.last).by_pincode
+# puts VaccineSlotFinder::VaccineFinder.new(ARGV.first, ARGV.last).by_pincode

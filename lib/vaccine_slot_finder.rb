@@ -1,16 +1,16 @@
 require_relative "vaccine_slot_finder/version"
 require 'httparty'
 require 'byebug'
+require 'twilio-ruby'
+require 'whenever'
 
 module VaccineSlotFinder
   class VaccineFinder
     include HTTParty
     base_uri 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public'
 
-    TEAMS_WEBHOOK = ''
-
-
     def initialize(pincode, date)
+      @pincode = pincode
       @query_params = { query: { pincode: pincode, date: date } }
     end
 
@@ -18,8 +18,20 @@ module VaccineSlotFinder
       data = self.class.get("/calendarByPin", @query_params)
       parsed_data = JSON.parse(data.body)
       relevant_data = extract_relevant_data(parsed_data)
-      puts 'No data found! Stay at HOME' if relevant_data.empty?
+      puts 'No vaccines available for age group 18-45! Stay at HOME please!' if relevant_data.empty?
       puts relevant_data
+      send_to_teams_channel unless relevant_data.empty?
+      # send_sms_to_me unless relevant_data.empty?
+    end
+
+    def send_sms_to_me
+      @client = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
+      message = @client.messages.create(
+          body: "Pincode:- #{@pincode} seems to have have some vaccine slots available for you!",
+          to: ENV['TWILIO_TO'],    # Replace with your phone number
+          from: ENV['TWILIO_FROM'])  # Use this Magic Number for creating SMS
+
+      puts "Message sent with message using ID:- #{message.sid} and for pincode:- #{@pincode}"
     end
 
     def extract_relevant_data(parsed_data)
@@ -53,16 +65,25 @@ module VaccineSlotFinder
       sessions
     end
 
-    # TODO: Push to Microsoft Teams channel. Needs webhook url, where the data will be posted.
-    def send_to_teams_channel(relevant_data)
-      response = self.class.post(TEAMS_WEBHOOK,
-                                 :body => {"text" => relevant_data.to_s}.to_json,
+    # Push to Microsoft Teams channel. Needs webhook url, where the data will be posted.
+    def send_to_teams_channel
+      response = self.class.post(ENV['TEAMS_WEBHOOK'],
+                                 :body => {"text" => "Pincode:- #{@pincode} has some vaccine for 18-45 age group. Try booking now!"}.to_json,
                                  :headers => { 'Content-Type' => 'application/json' } )
       puts response.code
     end
   end
 end
 
+
 # puts ARGV
-# slots = VaccineSlotFinder::VaccineFinder.new(ARGV.first, ARGV.last)
-# slots.by_pincode
+# yml = YAML.load_file('lib/vaccine_slot_finder/bengaluru_pincodes.yaml')
+# yml = yml['pincodes'].split(" ")
+#
+# # APi response returns availability for next 7 days
+# time = Time.now.strftime('%d/%m/%Y')
+# yml.each do |pin|
+#   puts "Searching for pincode:- #{pin}"
+#   puts VaccineSlotFinder::VaccineFinder.new(pin, time).by_pincode
+#   sleep 4
+# end
