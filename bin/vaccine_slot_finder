@@ -7,7 +7,8 @@ require 'vaccine_slot_finder'
 #   return
 # end
 
-yml = YAML.load_file('lib/vaccine_slot_finder/bengaluru_pincodes.yaml')
+# Copy bengaluru_pincodes.yaml to the Desktop
+yml = YAML.load_file(File.expand_path('~/Desktop/bengaluru_pincodes.yaml'))
 yml = yml['pincodes'].split(" ")
 
 # APi response returns availability for next 7 days
