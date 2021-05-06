@@ -8,8 +8,8 @@
 set :output, "/Users/nakumar/learnings/vaccine_slot_finder/config/cron_log.log"
 
 # Need to run it every 40 mins to prevent api throttling.
-every 40.minutes do
-  command "vaccine_slot_finder"
+every 10.minutes do
+  command "vaccine_slot_finder '560067'"
 end
 #
 # every 4.days do

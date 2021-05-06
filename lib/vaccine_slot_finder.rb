@@ -9,13 +9,34 @@ module VaccineSlotFinder
     include HTTParty
     base_uri 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public'
 
-    def initialize(pincode, date)
+    def initialize(pincode)
       @pincode = pincode
-      @query_params = { query: { pincode: pincode, date: date } }
+      @user_pincodes = init_bengaluru_pincodes
     end
 
-    def by_pincode
-      data = self.class.get("/calendarByPin", @query_params)
+    def run
+      date = Time.now.strftime('%d/%m/%Y')
+      @user_pincodes.each do |pincode|
+        puts "Searching for pincode:- #{pincode}"
+        query_params = { query: { pincode: pincode, date: date } }
+        by_pincode(query_params)
+      end
+    end
+
+    def init_bengaluru_pincodes
+      yml = YAML.load_file(File.expand_path('~/Desktop/bengaluru_pincodes.yaml'))
+      # yml = YAML.load_file('lib/vaccine_slot_finder/bengaluru_pincodes.yaml')
+      yml = yml['pincodes'].split(" ")
+      yml = yml.map(&:to_i).sort.uniq!
+      pincode_index = yml.find_index(@pincode.to_i)
+      last_2_ele_index = [yml.length, (yml.length - 1)]
+      return yml[0..5] if [0, 1].include?(pincode_index)
+      return yml[-1..-5] if last_2_ele_index.include?(pincode_index)
+      yml[pincode_index - 2..pincode_index + 2]
+    end
+
+    def by_pincode(query_params)
+      data = self.class.get("/calendarByPin", query_params)
       parsed_data = JSON.parse(data.body)
       relevant_data = extract_relevant_data(parsed_data)
       puts 'No vaccines available for age group 18-45! Stay at HOME please!' if relevant_data.empty?
